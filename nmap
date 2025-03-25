@@ -1,0 +1,29 @@
+-sT -> Escaneo de pouertos por el protocolo tcp
+-sU -> Escaneo de puertos por el protocolo udp
+-sS -> Escaneo de puertos por manipulando el protocolo tcp para dejar la conexión abierta (un poco mas rápido)
+
+-sV -> Escaneo de versiones de Servicios
+-sC -> Lanzar un conjunto de los scripts mas populares
+-Pn -> Deshabilitar el Descubrimiento de Hosts (para que no intente comprobar si el host está activo usando paquetes icmp)
+-n	-> Deshabilitar la resolución DNS (puede ralentizar el escaneo)
+-f	-> fragmentar paquetes (se usa para evadir cortafuegos)
+-p- -> escanear todos los puertos (65536)
+-p	<puerto1,puerto2...puertoN> -> especificar los puertos específicos a escanear
+
+-T[0-5] -> especificar la intensidad del escaneo donde -T0 es el mas discreto y -T5 el mas agresivo
+-v | -vv | -vvv -> indicar el nivel de verbosidad para ir viendo los resultados sobre la marcha y no solo cuando termine
+
+--open -> mostrar solo puertos abiertos
+--min-rate <numero> -> indicar la cantidad de paquetes por segundo que queremos que se envien
+
+-oN <file> -> exportar los resultados a un archivo
+
+--script <script> -> usar un script de nmap
+
+-------------------------------------[ejemplos]-----------------------------------------------------------------------------------------
+#Escaneo rápido de todos los puertos por tcp:
+
+sudo nmap -sS -p- --open -vvv --min-rate 5000 -Pn -n $IP -oN nmapReport
+
+#Escaneo de puertos específicos escaneando Versiones y lanzando scripts populares:
+nmap -sCV -p22,80 -n -Pn -vvv -oN versions
